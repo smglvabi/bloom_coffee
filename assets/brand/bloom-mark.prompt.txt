@@ -1,0 +1,6 @@
+Mode: built-in image_gen, edit with transparent_background=true.
+Input: the coffee-flower logo supplied by the user for the Bloom header.
+Output: bloom-mark.png. The application applies its #302820 theme color.
+
+Prompt:
+Use case: background-extraction. Edit target: the supplied small coffee-flower logo. Prepare this EXACT mark as a clean transparent PNG icon for an existing Flutter app. Remove only the light cream background including the light gaps between the petals and the light curved central seam. Preserve the logo's exact geometry and orientation: five dark petals, an upright elongated coffee bean slightly leaning right in the foreground, and its curved S-shaped open seam. Preserve the existing proportions, all five petal positions, the silhouette, the spacing and the bean shape. Flat solid dark brown #302820 mark. Clean sharp antialiased edges. No redesign, no additional shapes, no text, no outlines, no shadows, no gradients, no surrounding square or colored background. Center the mark on a square transparent canvas with a small even transparent margin around it. This is a faithful cutout of the supplied logo, not a new logo concept. Output a genuinely transparent PNG.

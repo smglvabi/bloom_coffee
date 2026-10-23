@@ -1,0 +1,47 @@
+name: bloom
+description: Личный дневник ручного заваривания кофе.
+publish_to: none
+version: 1.1.0+3
+environment:
+  sdk: '>=3.12.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  sqflite: ^2.4.2
+  sqflite_common: ^2.5.6
+  sqflite_common_ffi_web: ^1.2.0
+  image_picker: ^1.2.0
+  share_plus: ^12.0.0
+  audioplayers: ^6.5.1
+  cupertino_icons: ^1.0.8
+  web: ^1.1.1
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  sqflite_common_ffi: ^2.4.0
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/audio/step.wav
+    - assets/brand/bloom-mark.png
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-400.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-500.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-600.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-700.ttf
+          weight: 700
+    - family: IBM Plex Mono
+      fonts:
+        - asset: assets/fonts/IBMPlexMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IBMPlexMono-SemiBold.ttf
+          weight: 600
