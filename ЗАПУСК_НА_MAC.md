@@ -13,7 +13,7 @@ Locations → Command Line Tools** выберите установленную �
 В Terminal проверьте:
 
 ```sh
-flutter --version
+flutter --no-version-check --version
 xcodebuild -version
 ```
 
@@ -147,6 +147,23 @@ Mac и iPhone нет. На Mac приложение можно разрабат�
 отдельной сборки для рабочего стола macOS в этом проекте нет.
 
 ## Автоматические проверки
+
+### Если Flutter ожидает `git fetch --tags`
+
+Это сетевая проверка обновлений самого SDK, которая может задержать даже
+`flutter --version`. Прервите команду через Ctrl+C и проверьте установленный SDK:
+
+```sh
+flutter --no-version-check --version
+flutter --no-version-check precache --ios
+```
+
+Скрипт `tool/ios.sh` передаёт `--no-version-check` автоматически и показывает
+этапы подготовки. Флаг пропускает проверку обновлений SDK, сохраняя загрузку
+нужных компонентов и проверку пакетов. Он не исправляет доступ к GitHub и не
+обновляет устаревший SDK.
+
+### Проверки проекта
 
 ```sh
 bash tool/ios.sh check

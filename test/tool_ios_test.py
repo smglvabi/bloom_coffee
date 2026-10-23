@@ -36,6 +36,9 @@ elif command == 'xcode-select':
 elif command == 'xcodebuild':
     print('Xcode 16.2')
 elif command == 'flutter':
+    if not args or args[0] != '--no-version-check':
+        sys.exit(89)  # Simulate an unavailable SDK update server.
+    args = args[1:]
     if args == ['devices', '--machine']:
         print(os.environ['MOCK_PHONES'])
     elif args[:2] == ['pub', 'get']:
@@ -75,7 +78,23 @@ elif command == 'xcrun':
 
     def commands(self):
         path = self.path / "commands.jsonl"
-        return [json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
+        commands = [json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
+        for command in commands:
+            if command[0] == 'flutter':
+                self.assertEqual(command[1], '--no-version-check')
+                del command[1]
+        return commands
+
+    def test_doctor_and_prepare_skip_unavailable_update_server(self):
+        result = self.run_launcher('doctor')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn(['flutter', '--version'], self.commands())
+        self.assertIn('без сетевой проверки', result.stderr)
+        result = self.run_launcher('prepare')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for step in ['1/3:', '2/3:', '3/3:']:
+            self.assertIn(step, result.stderr)
+        self.assertIn(['flutter', 'build', 'ios', '--config-only', '--no-codesign'], self.commands())
 
     def test_check_can_run_on_linux_and_uses_locked_dependencies(self):
         self.env["MOCK_OS"] = "Linux"

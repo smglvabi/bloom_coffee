@@ -13,6 +13,12 @@ require_command() {
 require_flutter() {
   require_command "$FLUTTER_BIN" 'Flutter не найден. Добавьте flutter/bin в PATH или задайте BLOOM_FLUTTER=/путь/к/flutter.'
 }
+flutter_cmd() {
+  # SDK freshness checks can wait on git fetch before the command does any work.
+  # This skips only the update check; artifact and package verification stay on.
+  "$FLUTTER_BIN" --no-version-check "$@"
+}
+progress() { printf '\n%s\n' "$*" >&2; }
 require_mac() {
   [ "$(uname -s)" = Darwin ] || fail 'Сборка и запуск iOS требуют Mac с Xcode. Проверки кода: bash tool/ios.sh check.'
   require_command xcode-select 'Установите Xcode и его Command Line Tools.'
@@ -27,9 +33,12 @@ require_python() {
 prepare() {
   require_flutter
   require_mac
-  "$FLUTTER_BIN" precache --ios
-  "$FLUTTER_BIN" pub get --enforce-lockfile
-  "$FLUTTER_BIN" build ios --config-only --no-codesign
+  progress '1/3: Загрузка компонентов Flutter для iOS…'
+  flutter_cmd precache --ios
+  progress '2/3: Установка закреплённых зависимостей…'
+  flutter_cmd pub get --enforce-lockfile
+  progress '3/3: Подготовка проекта Xcode…'
+  flutter_cmd build ios --config-only --no-codesign
 }
 usage() {
   cat <<'HELP'
@@ -48,7 +57,7 @@ HELP
 }
 
 select_phone() {
-  "$FLUTTER_BIN" devices --machine | python3 -c '
+  flutter_cmd devices --machine | python3 -c '
 import json, sys
 try:
     devices = [d for d in json.load(sys.stdin) if d.get("targetPlatform") == "ios" and not d.get("emulator", False) and d.get("isSupported", True)]
@@ -111,16 +120,17 @@ case "$mode" in
     require_flutter
     require_mac
     xcodebuild -version
-    "$FLUTTER_BIN" --version
-    "$FLUTTER_BIN" doctor -v
-    "$FLUTTER_BIN" devices
+    progress 'Версия установленного Flutter (без сетевой проверки обновлений)…'
+    flutter_cmd --version
+    flutter_cmd doctor -v
+    flutter_cmd devices
     ;;
   prepare) prepare ;;
   check)
     require_flutter
-    "$FLUTTER_BIN" pub get --enforce-lockfile
-    "$FLUTTER_BIN" analyze
-    "$FLUTTER_BIN" test
+    flutter_cmd pub get --enforce-lockfile
+    flutter_cmd analyze
+    flutter_cmd test
     ;;
   simulator)
     require_flutter
@@ -135,7 +145,7 @@ case "$mode" in
     if [ "$state" != Booted ]; then xcrun simctl boot "$target"; fi
     open -a Simulator
     xcrun simctl bootstatus "$target" -b
-    "$FLUTTER_BIN" run -d "$target"
+    flutter_cmd run -d "$target"
     ;;
   device)
     require_flutter
@@ -143,7 +153,7 @@ case "$mode" in
     require_python
     target="$(select_phone "${2:-}")"
     prepare
-    "$FLUTTER_BIN" run --release -d "$target"
+    flutter_cmd run --release -d "$target"
     ;;
   *) usage >&2; fail "Неизвестная команда: $mode" ;;
 esac
